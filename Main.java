@@ -11,26 +11,26 @@ public class Main {
 		int tLorry = Integer.parseInt(args[2]);
 		int capLorry = Integer.parseInt(args[3]);
 		int capFerry = Integer.parseInt(args[4]);
+		
 		String file = "ref_input.txt";
 		int [] blocks = loadData(file);
 		Foreman foreman = new Foreman(blocks);
 		Worker [] workers = new Worker[cWorker];
-		Lorry lorry = new Lorry(capLorry, tLorry);
 		for(int i = 0; i < workers.length; i++) {
-			workers[i] = new Worker(i + 1, foreman, tWorker, lorry);
+			workers[i] = new Worker(i + 1, tWorker);
 		}
 		Thread [] threads = new Thread[workers.length];
+		
 		for(int i = 0; i < workers.length; i++) {
 			threads[i] = new Thread(workers[i]);
-			threads[i].start();
 		}
+		Simulation simulation = new Simulation(foreman, workers, threads, capLorry, tLorry, capFerry);
+		simulation.start();
 		/*
 		System.out.println(blocks.length);
 		for(int i = 0; i < 71; i++) {
 			System.out.println(blocks[i]);
 		}*/
-		
-		
 	}
 
 	private static int [] loadData(String file) {

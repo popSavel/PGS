@@ -14,6 +14,14 @@ public class Foreman {
 		index++;
 		return result;
 	}
+	
+	public boolean hasNext() {
+		if(index <= blocks.length - 1) {
+			return true;
+		}else {
+			return false;
+		}
+	}
 
 
 }
