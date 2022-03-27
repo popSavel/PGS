@@ -20,17 +20,13 @@ public class Main {
 			workers[i] = new Worker(i + 1, tWorker);
 		}
 		Thread [] threads = new Thread[workers.length];
+		Ferry ferry = new Ferry(capFerry);
 		
 		for(int i = 0; i < workers.length; i++) {
 			threads[i] = new Thread(workers[i]);
 		}
-		Simulation simulation = new Simulation(foreman, workers, threads, capLorry, tLorry, capFerry);
+		Simulation simulation = new Simulation(foreman, ferry, workers, threads, capLorry, tLorry, capFerry);
 		simulation.start();
-		/*
-		System.out.println(blocks.length);
-		for(int i = 0; i < 71; i++) {
-			System.out.println(blocks[i]);
-		}*/
 	}
 
 	private static int [] loadData(String file) {

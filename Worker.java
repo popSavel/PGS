@@ -19,7 +19,7 @@ public class Worker implements Runnable{
 			int resourceSize = simulation.getBLock();
 			System.out.println("--------------[" + Long.toString(System.currentTimeMillis()) + "] Worker " + workerNum + " got " + resourceSize + " resources");
 			for(int i = 0; i < resourceSize; i++) {
-				int time = r.nextInt(tWorker);
+				int time = r.nextInt(tWorker + 1);
 				try {
 					//System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Worker " + workerNum + " loading " + time + "millis");
 					Thread.sleep(time);
@@ -29,14 +29,17 @@ public class Worker implements Runnable{
 				}
 				//System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Worker " + workerNum + " loaded");	
 			}
-			//System.out.println("--------------[" + Long.toString(System.currentTimeMillis()) + "] Worker " + workerNum + " finished ");
-			simulation.loadResources(resourceSize, this);	
+			System.out.println("--------------[" + Long.toString(System.currentTimeMillis()) + "] Worker " + workerNum + " finished ");
+			//simulation.loadResources(resourceSize, this);	
+			
+			for(int i = 0; i < resourceSize; i++) {
+				
+					//System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Worker " + workerNum +" loaded one");
+					simulation.loadResource(this);
+				
+			}
+			//simulation.loadResources(this, resourceSize);
 		}
-	}
-
-	public void prepareNew() {
-		// TODO Auto-generated method stub
-		
 	}
 
 }
