@@ -15,6 +15,18 @@ public class Main {
 		String file = "ref_input.txt";
 		int [] blocks = loadData(file);
 		Foreman foreman = new Foreman(blocks);
+		
+		//console output
+		System.out.println("Specified parameters:");
+		System.out.println("cWorker: " + cWorker);
+		System.out.println("tWorker: " + tWorker);
+		System.out.println("tLorry: " + tLorry);
+		System.out.println("capLorry: " + capLorry);
+		System.out.println("capFerry: " + capFerry);
+		System.out.println("blocks found: " + foreman.blocks.length);
+		System.out.println("sources found: " + foreman.getSourceCount());
+		System.out.println("STARTING SIMULATION");
+		
 		Worker [] workers = new Worker[cWorker];
 		for(int i = 0; i < workers.length; i++) {
 			workers[i] = new Worker(i + 1, tWorker);
@@ -27,6 +39,11 @@ public class Main {
 		}
 		Simulation simulation = new Simulation(foreman, ferry, workers, threads, capLorry, tLorry, capFerry);
 		simulation.start();
+		System.out.println("SIMULATION OVER");
+		for(int i = 0; i < workers.length; i++) {
+			System.out.println("Worker " + i+1 + " extracted " + workers[i].extractedTotal+" sources");
+		}
+		System.out.println("Sources extracted: " + simulation.extractedTotal);
 	}
 
 	private static int [] loadData(String file) {

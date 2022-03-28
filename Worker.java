@@ -5,12 +5,14 @@ public class Worker implements Runnable{
 	Random r;
 	int tWorker;
 	int workerNum;
+	int extractedTotal;
 	Simulation simulation;
 
 	public Worker(int workerNum, int tWorker) {
 		r = new Random();
 		this.tWorker = tWorker;
 		this.workerNum = workerNum;
+		extractedTotal = 0;
 	}
 
 	@Override
@@ -38,6 +40,7 @@ public class Worker implements Runnable{
 					simulation.loadResource(this);
 				
 			}
+			extractedTotal+=resourceSize;
 			//simulation.loadResources(this, resourceSize);
 		}
 	}

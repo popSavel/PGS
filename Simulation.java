@@ -6,7 +6,8 @@ public class Simulation {
 	Ferry ferry;
 	Worker [] workers;
 	Thread [] threadsWorker;
-	Thread [] threadsLorry;
+	//Thread [] threadsLorry;
+	Thread lorryThread;
 	ArrayList<Lorry> lorryArray = new ArrayList<Lorry>();
 	Lorry currLorry;
 	int capLorry;
@@ -15,6 +16,7 @@ public class Simulation {
 	int blockNum;
 	int lorryIndex;
 	int currLorryIndex;
+	int extractedTotal;
 	
 	public Simulation (Foreman foreman, Ferry ferry, Worker[] workers, Thread[] threadsWorker, int capLorry, int tLorry, int capFerry) {
 		this.foreman = foreman;
@@ -28,18 +30,21 @@ public class Simulation {
 		this.capFerry = capFerry;
 		this.ferry = ferry;
 		lorryIndex = 1;
-		threadsLorry = new Thread[capFerry];
+		//threadsLorry = new Thread[capFerry];
 		for(int i = 0; i < capFerry; i++) {
 			lorryArray.add(new Lorry(this.capLorry, this.tLorry, this, lorryIndex));
 			lorryIndex++;
-			threadsLorry[i] = new Thread(lorryArray.get(i));
+			//threadsLorry[i] = new Thread(lorryArray.get(i));
 		}
+		/*
 		for(int i = 0; i < threadsLorry.length; i++) {
 			threadsLorry[i] = new Thread(lorryArray.get(i));
-		}
+		}*/
 		currLorryIndex = 0;
 		currLorry = lorryArray.get(currLorryIndex);
 		blockNum = 0;
+		lorryThread = new Thread(lorryArray.get(0));
+		extractedTotal = 0;
 	}
 
 	public void start() {
@@ -63,13 +68,25 @@ public class Simulation {
 		System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Worker " + worker.workerNum +" loaded one, lorry " + currLorry.lorryIndex+ " resources: " + currLorry.resCount);
 		currLorry.load();
 		if(currLorry.isFull) {
-			threadsLorry[currLorryIndex].start();
+			if(currLorryIndex == ferry.capFerry - 1) {
+				prepareNewLorries();
+			}
+			//threadsLorry[currLorryIndex].start();
+			lorryThread.start();
 			currLorry = lorryArray.get(currLorryIndex + 1);
 			currLorryIndex++;
-			ferry.addLorry();
-		}	
+			lorryThread = new Thread(lorryArray.get(currLorryIndex));
+			}	
 	}
 	
+	private void prepareNewLorries() {
+		currLorryIndex = - 1;
+		for(int i = 0; i < capFerry; i++) {
+			lorryArray.add(i, new Lorry(this.capLorry, this.tLorry, this, lorryIndex));
+			lorryIndex++;
+		}
+	}
+
 	public void loadResources(Worker worker, int resourcesSize) {
 		for(int i = 0; i < resourcesSize; i++) {
 			loadResource(worker);
@@ -77,7 +94,7 @@ public class Simulation {
 	}
 
 	public boolean isOver() {
-		if(foreman.hasNext() && blockNum < 1500) {
+		if(foreman.hasNext() && blockNum < 6000) {
 			return false;
 		}else {
 			return true;

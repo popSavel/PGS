@@ -23,5 +23,13 @@ public class Foreman {
 		}
 	}
 
+	public int getSourceCount() {
+		int result = 0;
+		for(int i = 0; i < blocks.length; i++) {
+			result += blocks[i];
+		}
+		return result;
+	}
+
 
 }
