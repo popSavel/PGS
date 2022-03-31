@@ -1,4 +1,6 @@
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -6,15 +8,23 @@ import java.util.Scanner;
 public class Main {
 
 	public static void main(String[] args) {
+		PrintWriter output = null;
 		int cWorker = Integer.parseInt(args[0]);
 		int tWorker= Integer.parseInt(args[1]);
 		int tLorry = Integer.parseInt(args[2]);
 		int capLorry = Integer.parseInt(args[3]);
 		int capFerry = Integer.parseInt(args[4]);
 		
+		try {
+			output = new PrintWriter(new FileWriter("output.txt"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		String file = "ref_input.txt";
+		Foreman foreman = new Foreman(file, output);
 		int [] blocks = loadData(file);
-		Foreman foreman = new Foreman(blocks);
 		
 		//console output
 		System.out.println("Specified parameters:");
@@ -29,7 +39,7 @@ public class Main {
 		
 		Worker [] workers = new Worker[cWorker];
 		for(int i = 0; i < workers.length; i++) {
-			workers[i] = new Worker(i + 1, tWorker);
+			workers[i] = new Worker(i + 1, tWorker, output);
 		}
 		Thread [] threads = new Thread[workers.length];
 		Ferry ferry = new Ferry(capFerry);
@@ -39,6 +49,9 @@ public class Main {
 		}
 		Simulation simulation = new Simulation(foreman, ferry, workers, threads, capLorry, tLorry, capFerry);
 		simulation.start();
+		while(!simulation.isOver()) {
+			
+		}
 		System.out.println("SIMULATION OVER");
 		for(int i = 0; i < workers.length; i++) {
 			System.out.println("Worker " + i+1 + " extracted " + workers[i].extractedTotal+" sources");
