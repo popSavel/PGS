@@ -1,3 +1,4 @@
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public class Simulation {
@@ -6,7 +7,6 @@ public class Simulation {
 	Ferry ferry;
 	Worker [] workers;
 	Thread [] threadsWorker;
-	//Thread [] threadsLorry;
 	Thread lorryThread;
 	ArrayList<Lorry> lorryArray = new ArrayList<Lorry>();
 	Lorry currLorry;
@@ -17,11 +17,17 @@ public class Simulation {
 	int lorryIndex;
 	int currLorryIndex;
 	int extractedTotal;
+	PrintWriter output;
+	int lastBatch;
+	long startTime;
 	
-	public Simulation (Foreman foreman, Ferry ferry, Worker[] workers, Thread[] threadsWorker, int capLorry, int tLorry, int capFerry) {
+	long lorryWaitTime;
+	
+	public Simulation (Foreman foreman, Ferry ferry, Worker[] workers, Thread[] threadsWorker, int capLorry, int tLorry, int capFerry, PrintWriter output) {
 		this.foreman = foreman;
 		this.workers = workers;
 		this.threadsWorker = threadsWorker;
+		this.output = output;
 		for(int i = 0; i < workers.length; i++) {
 			workers[i].simulation = this;
 		}
@@ -30,16 +36,11 @@ public class Simulation {
 		this.capFerry = capFerry;
 		this.ferry = ferry;
 		lorryIndex = 1;
-		//threadsLorry = new Thread[capFerry];
 		for(int i = 0; i < capFerry; i++) {
-			lorryArray.add(new Lorry(this.capLorry, this.tLorry, this, lorryIndex));
+			lorryArray.add(new Lorry(this.capLorry, this.tLorry, this, lorryIndex, this.output));
 			lorryIndex++;
-			//threadsLorry[i] = new Thread(lorryArray.get(i));
 		}
-		/*
-		for(int i = 0; i < threadsLorry.length; i++) {
-			threadsLorry[i] = new Thread(lorryArray.get(i));
-		}*/
+		
 		currLorryIndex = 0;
 		currLorry = lorryArray.get(currLorryIndex);
 		blockNum = 0;
@@ -48,6 +49,18 @@ public class Simulation {
 	}
 
 	public void start() {
+		long time = System.currentTimeMillis();
+		this.ferry.waitTime = time;
+		this.currLorry.waitTime = time;
+		this.startTime = time;
+		
+		for(int i = 0; i < lorryArray.size(); i++) {
+			lorryArray.get(i).waitTime = time;
+		}
+		
+		foreman.loadData();
+		lastBatch = foreman.getSourceCount() % capLorry;
+		System.out.println("lastBatch: " + lastBatch);
 		for(int i = 0; i < workers.length; i++) {
 			threadsWorker[i].start();
 		}
@@ -62,18 +75,16 @@ public class Simulation {
 		try {
 			Thread.sleep(10);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Worker " + worker.workerNum +" loaded one, lorry " + currLorry.lorryIndex+ " resources: " + currLorry.resCount);
 		currLorry.load();
-		if(currLorry.isFull) {
+		if(currLorry.isFull || (!foreman.hasNext() && currLorry.resCount == this.lastBatch)) {
 			if(currLorryIndex == ferry.capFerry - 1) {
 				prepareNewLorries();
 			}
-			//threadsLorry[currLorryIndex].start();
 			lorryThread.start();
 			currLorry = lorryArray.get(currLorryIndex + 1);
+			currLorry.waitTime = System.currentTimeMillis();
 			currLorryIndex++;
 			lorryThread = new Thread(lorryArray.get(currLorryIndex));
 			}	
@@ -82,23 +93,39 @@ public class Simulation {
 	private void prepareNewLorries() {
 		currLorryIndex = - 1;
 		for(int i = 0; i < capFerry; i++) {
-			lorryArray.add(i, new Lorry(this.capLorry, this.tLorry, this, lorryIndex));
+			lorryArray.add(i, new Lorry(this.capLorry, this.tLorry, this, lorryIndex, this.output));
 			lorryIndex++;
 		}
 	}
 
-	public void loadResources(Worker worker, int resourcesSize) {
-		for(int i = 0; i < resourcesSize; i++) {
-			loadResource(worker);
-		}
-	}
-
 	public boolean isOver() {
-		if(foreman.hasNext() && blockNum < 6000) {
-			return false;
-		}else {
-			return true;
+		for(int i = 0; i < threadsWorker.length; i++) {
+			if(threadsWorker[i].isAlive()) {
+				return false;
+			}
 		}
+		if(lorryThread.isAlive()) {
+			return false;
+		}
+		for(int i = 0; i < ferry.lorryThread.length; i++) {
+			
+			if(ferry.lorryThread[i] == null) {
+				if(this.extractedTotal == foreman.getSourceCount()) {
+					return true;
+				}else {
+					return false;
+				}
+			}else {
+				if(ferry.lorriesGoing) {
+					return false;
+				}else {
+					if(ferry.lorryThread[i].isAlive()) {
+						return false;
+					}	
+				}
+			}
+		}
+		return true;
 	}
 
 }

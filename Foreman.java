@@ -7,21 +7,33 @@ import java.util.Scanner;
 public class Foreman {
 	
 	int [] blocks;
+	
+	/**
+	 * index of last block given
+	 */
 	int index;
+	
+	String file;
 	PrintWriter output;
+	Simulation simulation;
 
 	public Foreman(String file, PrintWriter output) {
 		this.output = output;
-		this.blocks = loadData(file);
-		output.println("<"+System.currentTimeMillis()+"> <foreman> <"+Thread.currentThread()+"> <input file loaded, blocks count: "+blocks.length+", resources count: "+getSourceCount()+">");
+		this.file = file;
 	}
 
+	/**
+	 * @return first unextracted block
+	 */
 	public int getBLock() {
 		int result = blocks[index];
 		index++;
 		return result;
 	}
 	
+	/**
+	 * @return true, if there are block left to extract
+	 */
 	public boolean hasNext() {
 		if(index <= blocks.length - 1) {
 			return true;
@@ -30,6 +42,9 @@ public class Foreman {
 		}
 	}
 
+	/**
+	 * @return total of sources in all blocks
+	 */
 	public int getSourceCount() {
 		int result = 0;
 		for(int i = 0; i < blocks.length; i++) {
@@ -38,9 +53,12 @@ public class Foreman {
 		return result;
 	}
 	
-	private static int [] loadData(String file) {
+	/**
+	 * Load all the locks from input file into field, as Integer equals to source count in the block
+	 */
+	public void loadData() {
 		int [] blocks = null;
-		Path path = Path.of(file);
+		Path path = Path.of(this.file);
 		try {
 			Scanner sc = new Scanner(path);
 			ArrayList<Integer>result = new ArrayList<Integer>();
@@ -57,7 +75,8 @@ public class Foreman {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return blocks;
+		this.blocks = blocks;
+		output.println("<"+(System.currentTimeMillis() - simulation.startTime)+"> <foreman> <"+Thread.currentThread().getName()+"> <input file loaded, blocks count: "+blocks.length+", resources count: "+getSourceCount()+">");
 	}
 
 

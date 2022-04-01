@@ -1,3 +1,4 @@
+import java.io.PrintWriter;
 import java.util.Random;
 
 public class Lorry implements Runnable{
@@ -9,9 +10,14 @@ public class Lorry implements Runnable{
 	boolean isFull;
 	boolean atFerry;
 	Simulation simulation;
-	boolean isLast;
+	PrintWriter output;
+	
+	/**
+	 * time, this started waiting to be filled
+	 */
+	long waitTime;
 
-	public Lorry(int capLorry, int tLorry, Simulation simulation, int index) {
+	public Lorry(int capLorry, int tLorry, Simulation simulation, int index, PrintWriter output) {
 		this.capLorry = capLorry;
 		this.tLorry = tLorry;
 		this.simulation = simulation;
@@ -19,20 +25,24 @@ public class Lorry implements Runnable{
 		isFull = false;
 		lorryIndex = index;
 		atFerry = false;
-		isLast = false;
+		this.output = output;
 	}
 
+	/**
+	 * if atFerry is false - it wait random time from 0 to tLorry as it is going to ferry, then add this to Ferry and change atFerry to true
+	 * if atFerry is true - it wait random time from 0 to tLorry as it is going from ferry to finish and then add transported resources as resCount to extractedTotal in Simulation 
+	 */
 	@Override
 	public void run() {
 		Random r = new Random();
 		int time = r.nextInt(tLorry + 1);
 		if(!atFerry) {
 			try {
-				System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Lorry " +lorryIndex+" set off TO ferry, it should take " + time);
+				output.println("<"+(System.currentTimeMillis() - simulation.startTime)+"> <lorry "+this.lorryIndex+"> <"+Thread.currentThread().getName()+"> <lorry full, it waited "+ (System.currentTimeMillis() - this.waitTime) +" ms>");
+				long tookOff = System.currentTimeMillis();
 				Thread.sleep(time);
-				System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Lorry " +lorryIndex+" arrived to ferry ");
+				output.println("<"+(System.currentTimeMillis() - simulation.startTime)+"> <lorry "+this.lorryIndex+"> <"+Thread.currentThread().getName()+"> <lorry arrived to ferry, it took "+ (System.currentTimeMillis() - tookOff)+" ms>");
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			atFerry = true;
@@ -41,17 +51,19 @@ public class Lorry implements Runnable{
 		
 		}else {
 			try {
-				System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Lorry " +lorryIndex+" set off FROM ferry, it should take " + time);
+				long tookOff = System.currentTimeMillis();
 				Thread.sleep(time);
-				System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Lorry " +lorryIndex+" arrived to finish ");
+				output.println("<"+(System.currentTimeMillis() - simulation.startTime)+"> <lorry "+this.lorryIndex+"> <"+Thread.currentThread().getName()+"> <lorry arrived to finish, it took "+ (System.currentTimeMillis() - tookOff)+" ms, from ferry arrival>");
 				simulation.extractedTotal += resCount;
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 	}
 
+	/**
+	 * increase total of resources loaded, and if it is equal to capacity, change boolean isFull to true
+	 */
 	public void load() {
 		resCount++;
 		if(resCount == capLorry) {

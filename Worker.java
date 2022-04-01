@@ -18,37 +18,31 @@ public class Worker implements Runnable{
 		this.output = output;
 	}
 
+	/**
+	 * worker asks foreman for blocks, until he has some
+	 * after he get block, he wait random time from 0 to toWorker for every resource in block, as he is extracting it
+	 * after he extract whole block he calls loadResource() from Simulation for every resource he extracted
+	 */
 	@Override
 	public void run() {
-		while(!simulation.isOver()) {
+		while(simulation.foreman.hasNext()) {
 			int resourceSize = simulation.getBLock();
 			int blockTime = 0;
-			System.out.println("--------------[" + Long.toString(System.currentTimeMillis()) + "] Worker " + workerNum + " got " + resourceSize + " resources");
 			for(int i = 0; i < resourceSize; i++) {
 				int time = r.nextInt(tWorker + 1);
 				blockTime += time;
 				try {
-					//System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Worker " + workerNum + " loading " + time + "millis");
 					Thread.sleep(time);
-					output.println("<"+System.currentTimeMillis()+"> <worker "+this.workerNum+"> <"+Thread.currentThread()+"> <resource extraction finished, it took "+ time+" ms>");
+					output.println("<"+(System.currentTimeMillis() - simulation.startTime)+"> <worker "+this.workerNum+"> <"+Thread.currentThread().getName()+"> <resource extraction finished, it took "+ time+" ms>");
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				//System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Worker " + workerNum + " loaded");	
 			}
-			output.println("<"+System.currentTimeMillis()+"> <worker "+this.workerNum+"> <"+Thread.currentThread()+"> <block extraction finished, it took "+ blockTime+" ms>");
-			System.out.println("--------------[" + Long.toString(System.currentTimeMillis()) + "] Worker " + workerNum + " finished ");
-			//simulation.loadResources(resourceSize, this);	
-			
+			output.println("<"+(System.currentTimeMillis() - simulation.startTime)+"> <worker "+this.workerNum+"> <"+Thread.currentThread().getName()+"> <block extraction finished, it took "+ blockTime+" ms>");
 			for(int i = 0; i < resourceSize; i++) {
-				
-					//System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Worker " + workerNum +" loaded one");
-					simulation.loadResource(this);
-				
+				simulation.loadResource(this);
 			}
 			extractedTotal+=resourceSize;
-			//simulation.loadResources(this, resourceSize);
 		}
 	}
 
