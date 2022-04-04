@@ -21,9 +21,6 @@ public class Main {
 		for(int i = 0; i < args.length; i+=2) {
 			String param = args[i];
 			switch(param) {
-			case "-jar":
-				String path = args[i+1];
-			break;
 			case "-i":
 				file = args[i+1];
 			break;

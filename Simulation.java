@@ -7,7 +7,8 @@ public class Simulation {
 	Ferry ferry;
 	Worker [] workers;
 	Thread [] threadsWorker;
-	Thread lorryThread;
+	Thread [] lorryThread;
+	Thread currLorryThread;
 	ArrayList<Lorry> lorryArray = new ArrayList<Lorry>();
 	Lorry currLorry;
 	int capLorry;
@@ -17,6 +18,7 @@ public class Simulation {
 	PrintWriter output;
 	long startTime;
 	long lorryWaitTime;
+	Barrier barrier;
 	
 	/**
 	 *  number of blocks assigned
@@ -51,15 +53,20 @@ public class Simulation {
 		this.capFerry = capFerry;
 		this.ferry = ferry;
 		lorryIndex = 1;
+		this.barrier = new Barrier(this.capFerry);
 		for(int i = 0; i < capFerry; i++) {
-			lorryArray.add(new Lorry(this.capLorry, this.tLorry, this, lorryIndex, this.output));
+			lorryArray.add(new Lorry(this.barrier, this.capLorry, this.tLorry, this, lorryIndex, this.output));
 			lorryIndex++;
+		}
+		lorryThread = new Thread[lorryArray.size()];
+		for(int i = 0; i < lorryArray.size(); i++) {
+			lorryThread[i] = new Thread(lorryArray.get(i));
 		}
 		
 		currLorryIndex = 0;
 		currLorry = lorryArray.get(currLorryIndex);
 		blockNum = 0;
-		lorryThread = new Thread(lorryArray.get(0));
+		currLorryThread = lorryThread[0];
 		extractedTotal = 0;
 	}
 
@@ -110,11 +117,11 @@ public class Simulation {
 			if(currLorryIndex == ferry.capFerry - 1) {
 				prepareNewLorries();
 			}
-			lorryThread.start();
+			currLorryThread.start();
 			currLorry = lorryArray.get(currLorryIndex + 1);
 			currLorry.waitTime = System.currentTimeMillis();
 			currLorryIndex++;
-			lorryThread = new Thread(lorryArray.get(currLorryIndex));
+			currLorryThread = lorryThread[currLorryIndex];
 			}	
 	}
 	
@@ -124,14 +131,14 @@ public class Simulation {
 	private void prepareNewLorries() {
 		currLorryIndex = - 1;
 		for(int i = 0; i < capFerry; i++) {
-			lorryArray.add(i, new Lorry(this.capLorry, this.tLorry, this, lorryIndex, this.output));
+			lorryArray.add(i, new Lorry(this.barrier, this.capLorry, this.tLorry, this, lorryIndex, this.output));
+			lorryThread[i] = new Thread(lorryArray.get(i));
 			lorryIndex++;
 		}
 	}
 
 	/**
 	 * check if any lorry or worker thread is alive and if total of extracted sources is equal to source count from foreman
-	 * lorriesGoing boolean from ferry is there to secure the moment, when last ferry unload last lorries, their lorry threads exist, but have not been started yet
 	 * @return true if simulation is completely over and statistics can be printed
 	 */
 	public boolean isOver() {
@@ -140,26 +147,13 @@ public class Simulation {
 				return false;
 			}
 		}
-		if(lorryThread.isAlive()) {
-			return false;
-		}
-		for(int i = 0; i < ferry.lorryThread.length; i++) {
-			
-			if(ferry.lorryThread[i] == null) {
-				if(this.extractedTotal == foreman.getSourceCount()) {
-					return true;
-				}else {
-					return false;
-				}
-			}else {
-				if(ferry.lorriesGoing) {
-					return false;
-				}else {
-					if(ferry.lorryThread[i].isAlive()) {
-						return false;
-					}	
-				}
+		for(int i = 0; i < lorryThread.length; i++) {
+			if(lorryThread[i].isAlive()) {
+				return false;
 			}
+		}
+		if(this.extractedTotal != foreman.getSourceCount()) {
+			return false;
 		}
 		return true;
 	}
