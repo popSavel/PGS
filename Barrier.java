@@ -9,7 +9,12 @@ public class Barrier {
 		count = 0;
 	}
 	
-	public synchronized void synchronize(Lorry l) {
+	/**
+	 * implemented barrier, taht make lorries wait, until ferry is filled 
+	 * then it will notifyAll those lorries and empty barrier 
+	 * @param lorry
+	 */
+	public synchronized void synchronize(Lorry lorry) {
 		this.count++;
 		if(this.count == capFerry) {
 			this.count = 0;
