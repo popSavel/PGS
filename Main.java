@@ -11,17 +11,48 @@ public class Main {
 		/**
 		 * saving input parameters
 		 */
-		int cWorker = Integer.parseInt(args[0]);
-		int tWorker= Integer.parseInt(args[1]);
-		int tLorry = Integer.parseInt(args[2]);
-		int capLorry = Integer.parseInt(args[3]);
-		int capFerry = Integer.parseInt(args[4]);
+		String file = "";
+		String outputName = "";
+		int cWorker = 0;
+		int tWorker= 0;
+		int tLorry = 0;
+		int capLorry = 0;
+		int capFerry = 0;
+		for(int i = 0; i < args.length; i+=2) {
+			String param = args[i];
+			switch(param) {
+			case "-jar":
+				String path = args[i+1];
+			break;
+			case "-i":
+				file = args[i+1];
+			break;
+			case "-o":
+				outputName = args[i+1];
+			break;
+			case "-cWorker":
+				cWorker = Integer.parseInt(args[i+1]);
+			break;
+			case "-tWorker":
+				tWorker = Integer.parseInt(args[i+1]);
+			break;
+			case "-tLorry":
+				tLorry = Integer.parseInt(args[i+1]);
+			break;
+			case "-capLorry":
+				capLorry = Integer.parseInt(args[i+1]);
+			break;
+			case "-capFerry":
+				capFerry = Integer.parseInt(args[i+1]);
+			break;
+			}
+		}
 		
 		/**
-		 * printwriter initialization
+		 * printWriter initialization
 		 */
 		try {
-			output = new PrintWriter(new FileWriter("output.txt"));
+			output = new PrintWriter(new FileWriter(outputName));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -29,8 +60,6 @@ public class Main {
 		/**
 		 * initialization of Workers, Lorries, Ferry and their Threads
 		 */
-		String file = "ref_input.txt";
-		//String file = "test.txt";
 		Foreman foreman = new Foreman(file, output);
 		
 		Worker [] workers = new Worker[cWorker];
@@ -53,7 +82,7 @@ public class Main {
 		simulation.start();
 		
 		/**
-		 * printing input paramaters and data loading results
+		 * printing input parameters and data loading results
 		 */
 		System.out.println("Specified parameters:");
 		System.out.println("cWorker: " + cWorker);

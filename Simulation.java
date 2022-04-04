@@ -13,15 +13,30 @@ public class Simulation {
 	int capLorry;
 	int tLorry;
 	int capFerry;
-	int blockNum;
-	int lorryIndex;
-	int currLorryIndex;
 	int extractedTotal;
 	PrintWriter output;
-	int lastBatch;
 	long startTime;
-	
 	long lorryWaitTime;
+	
+	/**
+	 *  number of blocks assigned
+	 */
+	int blockNum;
+	
+	/**
+	 * number of sources, last lorry will carry
+	 */
+	int lastBatch;
+	
+	/**
+	 * index to identify Lorries
+	 */
+	int lorryIndex;
+	
+	/**
+	 * index of currently filling lorry in lorryArray
+	 */
+	int currLorryIndex;
 	
 	public Simulation (Foreman foreman, Ferry ferry, Worker[] workers, Thread[] threadsWorker, int capLorry, int tLorry, int capFerry, PrintWriter output) {
 		this.foreman = foreman;
@@ -48,6 +63,10 @@ public class Simulation {
 		extractedTotal = 0;
 	}
 
+	/**
+	 * start the simulation
+	 * set start time for workers, ferry and first lorry to current system time, calls loadData() from Foreman and start worker threads
+	 */
 	public void start() {
 		long time = System.currentTimeMillis();
 		this.ferry.waitTime = time;
@@ -60,17 +79,26 @@ public class Simulation {
 		
 		foreman.loadData();
 		lastBatch = foreman.getSourceCount() % capLorry;
-		System.out.println("lastBatch: " + lastBatch);
 		for(int i = 0; i < workers.length; i++) {
 			threadsWorker[i].start();
 		}
 	}
 
+	/**
+	 * get block from foreman
+	 */
 	public int getBLock() {
 		blockNum++;
 		return foreman.getBLock();
 	}
 	
+	/**
+	 * loading one resource, waits for 10 ms, as the resource is getting loaded
+	 * in case lorry is full, or it is last resource of last batch, send lorry to ferry and set currLorry to next lorry in lorryArray
+	 * in case the lorry was last in lorryArray, create new lorries
+	 * it is synchronized, so two workers can not load resource at one time
+	 * @param worker who is loading the resource
+	 */
 	synchronized public void loadResource(Worker worker) {
 		try {
 			Thread.sleep(10);
@@ -90,6 +118,9 @@ public class Simulation {
 			}	
 	}
 	
+	/**
+	 * create capFerry lorries and add then on first capFerry indexes in lorryArray
+	 */
 	private void prepareNewLorries() {
 		currLorryIndex = - 1;
 		for(int i = 0; i < capFerry; i++) {
@@ -98,6 +129,11 @@ public class Simulation {
 		}
 	}
 
+	/**
+	 * check if any lorry or worker thread is alive and if total of extracted sources is equal to source count from foreman
+	 * lorriesGoing boolean from ferry is there to secure the moment, when last ferry unload last lorries, their lorry threads exist, but have not been started yet
+	 * @return true if simulation is completely over and statistics can be printed
+	 */
 	public boolean isOver() {
 		for(int i = 0; i < threadsWorker.length; i++) {
 			if(threadsWorker[i].isAlive()) {
