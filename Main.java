@@ -94,9 +94,7 @@ public class Main {
 		/**
 		 * waiting for the end of simulation, so final statistics are relevant
 		 */
-		while(!simulation.isOver()) {
-			
-		}
+		simulation.waitUntilOver();
 		
 		/**
 		 * printing statistics after simulation

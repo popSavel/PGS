@@ -19,6 +19,7 @@ public class Simulation {
 	long startTime;
 	long lorryWaitTime;
 	Barrier barrier;
+	Object changedExtracted = new Object();
 	
 	/**
 	 *  number of blocks assigned
@@ -138,24 +139,45 @@ public class Simulation {
 	}
 
 	/**
-	 * check if any lorry or worker thread is alive and if total of extracted sources is equal to source count from foreman
-	 * @return true if simulation is completely over and statistics can be printed
+	 * for all worker and lorry threads call join, so simulation waits for those threads to die
+	 * this method also calls wait over Object changedExtracted, so it could not end before extracted resources count is equal to count of resources foreman found 
 	 */
-	public boolean isOver() {
+	public void waitUntilOver() {
 		for(int i = 0; i < threadsWorker.length; i++) {
-			if(threadsWorker[i].isAlive()) {
-				return false;
+			try {
+				threadsWorker[i].join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 		}
 		for(int i = 0; i < lorryThread.length; i++) {
-			if(lorryThread[i].isAlive()) {
-				return false;
+			try {
+				lorryThread[i].join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}	
+		}
+		synchronized(changedExtracted){
+			while(this.extractedTotal != foreman.getSourceCount()) {
+				try {
+					changedExtracted.wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
-		if(this.extractedTotal != foreman.getSourceCount()) {
-			return false;
+	}
+
+	/**
+	 * increase extractedTotal by resCount and notify Object changedExtracted
+	 * is synchronized if two lorries called this at the same time, they could read the same number, but it is unlikely to happen
+	 * @param resCount count of resources lorry, which called this method, carried
+	 */
+	synchronized public void addExtracted(int resCount) {
+		this.extractedTotal += resCount;
+		synchronized (changedExtracted){
+			changedExtracted.notify();
 		}
-		return true;
 	}
 
 }

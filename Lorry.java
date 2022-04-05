@@ -51,7 +51,8 @@ public class Lorry implements Runnable{
 				long tookOff = System.currentTimeMillis();
 				Thread.sleep(time);
 				output.println("<"+(System.currentTimeMillis() - simulation.startTime)+"> <lorry "+this.lorryIndex+"> <"+Thread.currentThread().getName()+"> <lorry arrived to finish, it took "+ (System.currentTimeMillis() - tookOff)+" ms, from ferry arrival>");
-				simulation.extractedTotal += resCount;
+				//simulation.extractedTotal += resCount;
+				simulation.addExtracted(resCount);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
