@@ -54,9 +54,8 @@ public class Simulation {
 		this.capFerry = capFerry;
 		this.ferry = ferry;
 		lorryIndex = 1;
-		this.barrier = new Barrier(this.capFerry);
 		for(int i = 0; i < capFerry; i++) {
-			lorryArray.add(new Lorry(this.barrier, this.capLorry, this.tLorry, this, lorryIndex, this.output));
+			lorryArray.add(new Lorry(this.capLorry, this.tLorry, this, lorryIndex, this.output));
 			lorryIndex++;
 		}
 		lorryThread = new Thread[lorryArray.size()];
@@ -94,8 +93,9 @@ public class Simulation {
 
 	/**
 	 * get block from foreman
+	 * synchronized, so workers dont get the same block
 	 */
-	public int getBLock() {
+	synchronized public int getBLock() {
 		blockNum++;
 		return foreman.getBLock();
 	}
@@ -132,7 +132,7 @@ public class Simulation {
 	private void prepareNewLorries() {
 		currLorryIndex = - 1;
 		for(int i = 0; i < capFerry; i++) {
-			lorryArray.add(i, new Lorry(this.barrier, this.capLorry, this.tLorry, this, lorryIndex, this.output));
+			lorryArray.add(i, new Lorry(this.capLorry, this.tLorry, this, lorryIndex, this.output));
 			lorryThread[i] = new Thread(lorryArray.get(i));
 			lorryIndex++;
 		}
@@ -178,6 +178,20 @@ public class Simulation {
 		synchronized (changedExtracted){
 			changedExtracted.notify();
 		}
+	}
+	
+	/**
+	 * add next lorry to the ferry
+	 */
+	public void addLorry() {
+		this.ferry.addLorry();
+	}
+
+	/**
+	 * @return if foreman has next resource to be extracted
+	 */
+	public boolean hasNext() {
+		return this.foreman.hasNext();
 	}
 
 }

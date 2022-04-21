@@ -25,7 +25,7 @@ public class Worker implements Runnable{
 	 */
 	@Override
 	public void run() {
-		while(simulation.foreman.hasNext()) {
+		while(simulation.hasNext()) {
 			int resourceSize = simulation.getBLock();
 			int blockTime = 0;
 			for(int i = 0; i < resourceSize; i++) {

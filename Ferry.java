@@ -7,11 +7,13 @@ public class Ferry {
 	PrintWriter output;
 	long waitTime;
 	Simulation simulation;
+	Barrier barrier;
 
 	public Ferry(int capFerry, PrintWriter output) {
 		lorryCount = 0;
 		this.capFerry = capFerry;
 		this.output = output;
+		this.barrier = new Barrier(this.capFerry);
 		
 	}
 
@@ -27,6 +29,7 @@ public class Ferry {
 			lorryCount = 0;
 			waitTime = System.currentTimeMillis();
 		}
+		barrier.synchronize();
 		
 	}
 

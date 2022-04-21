@@ -10,14 +10,13 @@ public class Lorry implements Runnable{
 	boolean isFull;
 	Simulation simulation;
 	PrintWriter output;
-	Barrier barrier;
 	
 	/**
 	 * time, this started waiting to be filled
 	 */
 	long waitTime;
 
-	public Lorry(Barrier barrier, int capLorry, int tLorry, Simulation simulation, int index, PrintWriter output) {
+	public Lorry(int capLorry, int tLorry, Simulation simulation, int index, PrintWriter output) {
 		this.capLorry = capLorry;
 		this.tLorry = tLorry;
 		this.simulation = simulation;
@@ -25,7 +24,6 @@ public class Lorry implements Runnable{
 		isFull = false;
 		lorryIndex = index;
 		this.output = output;
-		this.barrier = barrier;
 	}
 
 	/**
@@ -44,8 +42,7 @@ public class Lorry implements Runnable{
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			simulation.ferry.addLorry();
-			barrier.synchronize(this);
+			simulation.addLorry();
 			
 			try {
 				long tookOff = System.currentTimeMillis();
