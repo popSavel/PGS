@@ -13,8 +13,9 @@ public class Barrier {
 	
 	/**
 	 * implemented barrier, that make lorries wait, until ferry is filled 
-	 * then it will notifyAll those lorries and empty barrier 
-	 * @param lorry
+	 * if sleep boolean is set to false, it means that lorries from previous ferry are still in the barrier and current lorry thread needs to wait
+	 * if count of lorries waiting in barrier is equal to ferry capacity, sleep will set to false, so next lorries will wait till current lorries leave
+	 * after all lorries leave sleep will set to true again
 	 */
 	public synchronized void synchronize() {	
 		
@@ -23,15 +24,14 @@ public class Barrier {
 			try {
 				wait();
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("Error thread waiting, simulation manually stopped before finish!!");
+				System.exit(0);
 			}
 		}
 		
 		this.count++;
 		
 		if(this.count == capFerry) {
-			//this.count = 0;
 			sleep = false;
 			notifyAll();
 		}
@@ -40,8 +40,8 @@ public class Barrier {
 			try {
 				wait();
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("Error thread waiting, simulation manually stopped before finish!!");
+				System.exit(0);
 			}
 		}
 		
@@ -51,19 +51,5 @@ public class Barrier {
 			sleep = true;
 			notifyAll();
 		}
-		
-		/*
-		this.count++;
-		if(this.count == capFerry) {
-			this.count = 0;
-			notifyAll();
-		}
-		else {
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}*/
 	}
 }

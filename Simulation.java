@@ -93,7 +93,7 @@ public class Simulation {
 
 	/**
 	 * get block from foreman
-	 * synchronized, so workers dont get the same block
+	 * synchronized, so workers do not get  block at the same time
 	 */
 	synchronized public int getBLock() {
 		blockNum++;
@@ -111,7 +111,8 @@ public class Simulation {
 		try {
 			Thread.sleep(10);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			System.out.println("Error thread sleeping, simulation manually stopped before finish!!");
+			System.exit(0);
 		}
 		currLorry.load();
 		if(currLorry.isFull || (!foreman.hasNext() && currLorry.resCount == this.lastBatch)) {
@@ -147,14 +148,16 @@ public class Simulation {
 			try {
 				threadsWorker[i].join();
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				System.out.println("Error joining threads, simulation manually stopped before finish!!");
+				System.exit(0);
 			}
 		}
 		for(int i = 0; i < lorryThread.length; i++) {
 			try {
 				lorryThread[i].join();
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				System.out.println("Error joining threads, simulation manually stopped before finish!!");
+				System.exit(0);
 			}	
 		}
 		synchronized(changedExtracted){
@@ -162,7 +165,8 @@ public class Simulation {
 				try {
 					changedExtracted.wait();
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					System.out.println("Error thread waiting, simulation manually stopped before finish!!");
+					System.exit(0);
 				}
 			}
 		}

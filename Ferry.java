@@ -30,7 +30,6 @@ public class Ferry {
 			waitTime = System.currentTimeMillis();
 		}
 		barrier.synchronize();
-		
 	}
 
 }

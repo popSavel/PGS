@@ -40,7 +40,8 @@ public class Lorry implements Runnable{
 				Thread.sleep(time);
 				output.println("<"+(System.currentTimeMillis() - simulation.startTime)+"> <lorry "+this.lorryIndex+"> <"+Thread.currentThread().getName()+"> <lorry arrived to ferry, it took "+ (System.currentTimeMillis() - tookOff)+" ms>");
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				System.out.println("Error thread sleeping, simulation manually stopped before finish!!");
+				System.exit(0);
 			}
 			simulation.addLorry();
 			
@@ -50,7 +51,8 @@ public class Lorry implements Runnable{
 				output.println("<"+(System.currentTimeMillis() - simulation.startTime)+"> <lorry "+this.lorryIndex+"> <"+Thread.currentThread().getName()+"> <lorry arrived to finish, it took "+ (System.currentTimeMillis() - tookOff)+" ms, from ferry arrival>");
 				simulation.addExtracted(resCount);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				System.out.println("Error thread sleeping, simulation manually stopped before finish!!");
+				System.exit(0);
 			}
 	}
 

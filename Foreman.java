@@ -73,7 +73,8 @@ public class Foreman {
 			}
 			sc.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("Error data loading, while inicializing scanner, simulation manually stopped before finish!!");
+			System.exit(0);
 		}
 		this.blocks = blocks;
 		output.println("<"+(System.currentTimeMillis() - simulation.startTime)+"> <foreman> <"+Thread.currentThread().getName()+"> <input file loaded, blocks count: "+blocks.length+", resources count: "+getSourceCount()+">");

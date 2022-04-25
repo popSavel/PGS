@@ -35,7 +35,8 @@ public class Worker implements Runnable{
 					Thread.sleep(time);
 					output.println("<"+(System.currentTimeMillis() - simulation.startTime)+"> <worker "+this.workerNum+"> <"+Thread.currentThread().getName()+"> <resource extraction finished, it took "+ time+" ms>");
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					System.out.println("Error thread sleeping, simulation manually stopped before finish!!");
+					System.exit(0);
 				}
 			}
 			output.println("<"+(System.currentTimeMillis() - simulation.startTime)+"> <worker "+this.workerNum+"> <"+Thread.currentThread().getName()+"> <block extraction finished, it took "+ blockTime+" ms>");

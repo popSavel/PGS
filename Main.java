@@ -51,7 +51,8 @@ public class Main {
 		try {
 			output = new PrintWriter(new FileWriter(outputName));
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("Error inicializing PrintWriter, simulation manually stopped before finish!!");
+			System.exit(0);
 		}
 		
 		/**
