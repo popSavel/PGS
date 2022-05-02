@@ -18,10 +18,11 @@ public class Ferry {
 	}
 
 	/**
-	 * if number of lorries in ferry is equal to ferry capacity it will set lorryCount to 0 
+	 * if number of lorries in ferry is equal to ferry capacity it will set lorryCount to 0
+	 * synchronized to make sure the output always print 
 	 * @param currLorry last loaded Lorry
 	 */
-	public void addLorry() {
+	synchronized public void addLorry() {
 		lorryCount++;
 		if(lorryCount == capFerry) {
 			System.out.println("<" +(System.currentTimeMillis() - simulation.startTime)+ "> <Ferry> <"+ Thread.currentThread().getName()+"> <drove out>");
@@ -31,5 +32,5 @@ public class Ferry {
 		}
 		barrier.synchronize();
 	}
-
+	
 }

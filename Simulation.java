@@ -192,9 +192,10 @@ public class Simulation {
 	}
 
 	/**
+	 * synchronized to make sure 2 workers do not get returned true, when there is only one source left
 	 * @return if foreman has next resource to be extracted
 	 */
-	public boolean hasNext() {
+	synchronized public boolean hasNext() {
 		return this.foreman.hasNext();
 	}
 
